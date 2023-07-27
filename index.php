@@ -52,7 +52,7 @@ function reportAbstracts(array $abstracts): array
   {
     $validAbstracts = [];
     $invalidAbstracts = [] ;
-    foreach($abstracts as $absract) {
+    foreach($abstracts as $abstract) {
       try {
         $validAbstract[] = validAbstract($abstract) ;
       } catch(DomainException $e)  {
@@ -62,8 +62,8 @@ function reportAbstracts(array $abstracts): array
 
     $report = sprintf("Nombre d'abstracts valides : %d/%d\n",
               count($invalidAbstracts), count($abstracts));
-    $report .= sprintf("Liste des abstracts invalides (id) :%s\n" ;
-    implore(', ', $invalideAbstracts));
+    $report .= sprintf("Liste des abstracts invalides (id) : %s\n" ,
+    implode(', ', $invalidAbstracts));
 
     return array(
       'valid' => $validAbstracts,
@@ -71,6 +71,46 @@ function reportAbstracts(array $abstracts): array
       'summary' => $report,
     );
   }
+/**
+*Returne labstract s'il est valide
+*@throws DomaiException si l'abstract n'est pas valide
+**/
+
+function validAbstract(array $abstract): array
+  {
+    if(!isset($abstract['id']) || !isset($abstract['name']) || !isset($abstract['url'])) {
+      throw new DomainException("L'abstract n'a pas un format valide");
+    }
+
+    if (!str_contains($abstract['url'], 'http://')) {
+      throw new DomainException("'url invalide");
+    }
+
+    return $abstract;
+  }
+$result = reportAbstracts($abstracts);
+echo $result['summary'];
+
+//================================================================================================
+//========================================== QUESTION 2 ==========================================
+
+// Définissons un géstionnaire d'exceptions global dans notre programme.
+// Celui-ci doit écrire un log horodaté de l"erreur incluant: la date etl'heure au format y-m-d h:m:s, 
+// le message d'erreur, le code d'erreur, le nom du fichier ou l'exception a été levée et le numéro de ligne . testons-le en lançant une exception avec le message 'oups !' e le code 400 dans l'esapce gobal.
+
+set_exception_handler(function (Exception $e) {
+  $log = sprintf(
+    "%s %s %s %s",
+    date('Y-m-d h:m:s'),
+    $e -> getMessage(),
+    $e -> getCode(),
+    $e -> getFile(),
+    $e -> getLine()
+  );
+  echo $log;
+  error_log($log, 3, 'error.log');
+});
+throw new Exception('oups !' , 400);
 
 ?> 
 
